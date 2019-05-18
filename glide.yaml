@@ -1,0 +1,6 @@
+package: github.com/sourcepirate/blackhole
+import:
+- package: github.com/spf13/cobra
+  version: ^0.0.3
+- package: github.com/olivere/elastic
+  version: ^7.0.0
