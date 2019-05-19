@@ -23,8 +23,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/olivere/env"
 
-	"github.com/olivere/elastic/v7"
-	aws "github.com/olivere/elastic/v7/aws/v4"
+	"github.com/olivere/elastic"
+	aws "github.com/olivere/elastic/aws/v4"
 )
 
 const (
@@ -168,7 +168,7 @@ func main() {
 			log.Fatal(err)
 		}
 		var tweet Tweet
-		if err = json.Unmarshal(doc.Source, &tweet); err != nil {
+		if err = json.Unmarshal(*doc.Source, &tweet); err != nil {
 			log.Fatal(err)
 		}
 		fmt.Printf("%s at %s: %s (%d retweets)\n",

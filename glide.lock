@@ -1,12 +1,23 @@
-hash: ef1636907790c24c1d6a99092cbfad173e463a01b7820553e4e7f7c0ce0bef2a
-updated: 2019-05-18T22:05:37.147+08:00
+hash: 4f0eb183f1588da2ec36acb7ce3f3faa97d646b672d283a68edc1f216cf73431
+updated: 2019-05-19T10:20:00.215779+08:00
 imports:
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/mailru/easyjson
+  version: 1ea4449da9834f4d333f1cc461c374aea217d249
+  subpackages:
+  - buffer
+  - jlexer
+  - jwriter
 - name: github.com/olivere/elastic
-  version: 60d62e5b2d1c728d7cbbeb7ed9a284303ea4acd4
+  version: 8a3f2cdf773521f77a2b9517d131c6cf28be6ca1
+  subpackages:
+  - config
+  - uritemplates
+- name: github.com/pkg/errors
+  version: 27936f6d90f9c8e1145f11ed52ffffbfdb9e0af7
 - name: github.com/spf13/cobra
-  version: ef82de70bb3f60c65fb8eebacbb2d122ef517385
+  version: 67fc4837d267bc9bfd6e47f77783fcc3dffc68de
 - name: github.com/spf13/pflag
-  version: 298182f68c66c05229eb03ac171abe6e309ee79a
+  version: 24fa6976df40757dce6aea913e7b81ade90530e1
 testImports: []

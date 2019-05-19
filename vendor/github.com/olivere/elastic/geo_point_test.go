@@ -49,12 +49,14 @@ func TestGeoPointIndexAndSearch(t *testing.T) {
 			"number_of_replicas":0
 		},
 		"mappings":{
-			"properties":{
-				"name":{
-					"type":"keyword"
-				},
-				"location":{
-					"type":"geo_point"
+			"doc":{
+				"properties":{
+					"name":{
+						"type":"keyword"
+					},
+					"location":{
+						"type":"geo_point"
+					}
 				}
 			}
 		}
@@ -77,13 +79,13 @@ func TestGeoPointIndexAndSearch(t *testing.T) {
 		Name:     "München",
 		Location: GeoPointFromLatLon(48.137154, 11.576124),
 	}
-	_, err = client.Index().Index(testIndexName).Id("1").BodyJson(&munich).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&munich).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Refresh
-	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
+	// Flush
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,6 +96,7 @@ func TestGeoPointIndexAndSearch(t *testing.T) {
 	q = q.Distance("50km")
 	res, err := client.
 		Search(testIndexName).
+		Type("doc").
 		Query(q).
 		Do(context.TODO())
 	if err != nil {
@@ -103,7 +106,7 @@ func TestGeoPointIndexAndSearch(t *testing.T) {
 		t.Fatalf("TotalHits: want %d, have %d", want, have)
 	}
 	var doc City
-	if err := json.Unmarshal(res.Hits.Hits[0].Source, &doc); err != nil {
+	if err := json.Unmarshal(*res.Hits.Hits[0].Source, &doc); err != nil {
 		t.Fatal(err)
 	}
 	if want, have := munich.Name, doc.Name; want != have {

@@ -16,7 +16,7 @@ func TestXPackWatcherStopBuildURL(t *testing.T) {
 		ExpectErr bool
 	}{
 		{
-			"/_watcher/_stop",
+			"/_xpack/watcher/_stop",
 			false,
 		},
 	}

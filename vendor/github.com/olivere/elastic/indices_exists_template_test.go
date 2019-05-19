@@ -19,15 +19,17 @@ func TestIndexExistsTemplate(t *testing.T) {
 		"number_of_replicas":0
 	},
 	"mappings":{
-		"properties":{
-			"tags":{
-				"type":"keyword"
-			},
-			"location":{
-				"type":"geo_point"
-			},
-			"suggest_field":{
-				"type":"completion"
+		"doc":{
+			"properties":{
+				"tags":{
+					"type":"keyword"
+				},
+				"location":{
+					"type":"geo_point"
+				},
+				"suggest_field":{
+					"type":"completion"
+				}
 			}
 		}
 	}

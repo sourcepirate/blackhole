@@ -26,6 +26,7 @@ func TestPercolate(t *testing.T) {
 	// Add a document
 	_, err = client.Index().
 		Index(testQueryIndex).
+		Type("doc").
 		Id("1").
 		BodyJson(`{"query":{"match":{"message":"bonsai tree"}}}`).
 		Refresh("wait_for").
@@ -37,8 +38,9 @@ func TestPercolate(t *testing.T) {
 	// Percolate should return our registered query
 	pq := NewPercolatorQuery().
 		Field("query").
+		DocumentType("doc").
 		Document(doctype{Message: "A new bonsai tree in the office"})
-	res, err := client.Search(testQueryIndex).Query(pq).Do(context.TODO())
+	res, err := client.Search(testQueryIndex).Type("doc").Query(pq).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,8 +50,8 @@ func TestPercolate(t *testing.T) {
 	if res.Hits == nil {
 		t.Fatal("expected SearchResult.Hits != nil; got nil")
 	}
-	if got, want := res.TotalHits(), int64(1); got != want {
-		t.Fatalf("expected SearchResult.TotalHits() = %d; got %d", want, got)
+	if got, want := res.Hits.TotalHits, int64(1); got != want {
+		t.Fatalf("expected SearchResult.Hits.TotalHits = %d; got %d", want, got)
 	}
 	if got, want := len(res.Hits.Hits), 1; got != want {
 		t.Fatalf("expected len(SearchResult.Hits.Hits) = %d; got %d", want, got)
@@ -58,7 +60,7 @@ func TestPercolate(t *testing.T) {
 	if hit.Index != testQueryIndex {
 		t.Fatalf("expected SearchResult.Hits.Hit.Index = %q; got %q", testQueryIndex, hit.Index)
 	}
-	got := string(hit.Source)
+	got := string(*hit.Source)
 	expected := `{"query":{"match":{"message":"bonsai tree"}}}`
 	if got != expected {
 		t.Fatalf("expected\n%s\n,got:\n%s", expected, got)

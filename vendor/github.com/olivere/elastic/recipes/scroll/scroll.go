@@ -24,13 +24,14 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/olivere/elastic/v7"
+	"github.com/olivere/elastic"
 )
 
 func main() {
 	var (
 		url   = flag.String("url", "http://localhost:9200", "Elasticsearch URL")
 		index = flag.String("index", "", "Elasticsearch index name")
+		typ   = flag.String("type", "", "Elasticsearch type name")
 		size  = flag.Int("size", 100, "Slice of documents to get per scroll")
 		sniff = flag.Bool("sniff", true, "Enable or disable sniffing")
 	)
@@ -71,7 +72,11 @@ func main() {
 
 		// Prepare the query
 		var query elastic.Query
-		query = elastic.NewMatchAllQuery()
+		if *typ == "" {
+			query = elastic.NewMatchAllQuery()
+		} else {
+			query = elastic.NewTypeQuery(*typ)
+		}
 		svc := client.Scroll(*index).Query(query)
 		for {
 			res, err := svc.Do(ctx)

@@ -20,9 +20,9 @@ func TestBulk(t *testing.T) {
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
 
-	index1Req := NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(tweet1)
-	index2Req := NewBulkIndexRequest().Index(testIndexName).Id("2").Doc(tweet2)
-	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Id("1")
+	index1Req := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").Doc(tweet1)
+	index2Req := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("2").Doc(tweet2)
+	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
 
 	bulkRequest := client.Bulk()
 	bulkRequest = bulkRequest.Add(index1Req)
@@ -46,7 +46,7 @@ func TestBulk(t *testing.T) {
 	}
 
 	// Document with Id="1" should not exist
-	exists, err := client.Exists().Index(testIndexName).Id("1").Do(context.TODO())
+	exists, err := client.Exists().Index(testIndexName).Type("doc").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -55,7 +55,7 @@ func TestBulk(t *testing.T) {
 	}
 
 	// Document with Id="2" should exist
-	exists, err = client.Exists().Index(testIndexName).Id("2").Do(context.TODO())
+	exists, err = client.Exists().Index(testIndexName).Type("doc").Id("2").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -69,7 +69,7 @@ func TestBulk(t *testing.T) {
 	}{
 		42,
 	}
-	update1Req := NewBulkUpdateRequest().Index(testIndexName).Id("2").Doc(&updateDoc)
+	update1Req := NewBulkUpdateRequest().Index(testIndexName).Type("doc").Id("2").Doc(&updateDoc)
 	bulkRequest = client.Bulk()
 	bulkRequest = bulkRequest.Add(update1Req)
 
@@ -90,7 +90,7 @@ func TestBulk(t *testing.T) {
 	}
 
 	// Document with Id="1" should have a retweets count of 42
-	doc, err := client.Get().Index(testIndexName).Id("2").Do(context.TODO())
+	doc, err := client.Get().Index(testIndexName).Type("doc").Id("2").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,7 +104,7 @@ func TestBulk(t *testing.T) {
 		t.Fatal("expected doc source to be != nil; got nil")
 	}
 	var updatedTweet tweet
-	err = json.Unmarshal(doc.Source, &updatedTweet)
+	err = json.Unmarshal(*doc.Source, &updatedTweet)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -113,7 +113,7 @@ func TestBulk(t *testing.T) {
 	}
 
 	// Update with script
-	update2Req := NewBulkUpdateRequest().Index(testIndexName).Id("2").
+	update2Req := NewBulkUpdateRequest().Index(testIndexName).Type("doc").Id("2").
 		RetryOnConflict(3).
 		Script(NewScript("ctx._source.retweets += params.v").Param("v", 1))
 	bulkRequest = client.Bulk()
@@ -134,7 +134,7 @@ func TestBulk(t *testing.T) {
 	}
 
 	// Document with Id="1" should have a retweets count of 43
-	doc, err = client.Get().Index(testIndexName).Id("2").Do(context.TODO())
+	doc, err = client.Get().Index(testIndexName).Type("doc").Id("2").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -147,7 +147,7 @@ func TestBulk(t *testing.T) {
 	if doc.Source == nil {
 		t.Fatal("expected doc source to be != nil; got nil")
 	}
-	err = json.Unmarshal(doc.Source, &updatedTweet)
+	err = json.Unmarshal(*doc.Source, &updatedTweet)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -162,11 +162,11 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
 
-	index1Req := NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(tweet1).Routing("1")
-	index2Req := NewBulkIndexRequest().Index(testIndexName).Id("2").Doc(tweet2)
-	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Id("1")
+	index1Req := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").Doc(tweet1).Routing("1")
+	index2Req := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("2").Doc(tweet2)
+	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
 
-	bulkRequest := client.Bulk().Index(testIndexName)
+	bulkRequest := client.Bulk().Index(testIndexName).Type("doc")
 	bulkRequest = bulkRequest.Add(index1Req)
 	bulkRequest = bulkRequest.Add(index2Req)
 	bulkRequest = bulkRequest.Add(delete1Req)
@@ -184,7 +184,7 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 	}
 
 	// Document with Id="1" should not exist
-	exists, err := client.Exists().Index(testIndexName).Id("1").Do(context.TODO())
+	exists, err := client.Exists().Index(testIndexName).Type("doc").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -193,7 +193,7 @@ func TestBulkWithIndexSetOnClient(t *testing.T) {
 	}
 
 	// Document with Id="2" should exist
-	exists, err = client.Exists().Index(testIndexName).Id("2").Do(context.TODO())
+	exists, err = client.Exists().Index(testIndexName).Type("doc").Id("2").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -209,10 +209,10 @@ func TestBulkIndexDeleteUpdate(t *testing.T) {
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
 
-	index1Req := NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(tweet1)
-	index2Req := NewBulkIndexRequest().OpType("create").Index(testIndexName).Id("2").Doc(tweet2)
-	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Id("1")
-	update2Req := NewBulkUpdateRequest().Index(testIndexName).Id("2").
+	index1Req := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").Doc(tweet1)
+	index2Req := NewBulkIndexRequest().OpType("create").Index(testIndexName).Type("doc").Id("2").Doc(tweet2)
+	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
+	update2Req := NewBulkUpdateRequest().Index(testIndexName).Type("doc").Id("2").
 		ReturnSource(true).
 		Doc(struct {
 			Retweets int `json:"retweets"`
@@ -230,12 +230,12 @@ func TestBulkIndexDeleteUpdate(t *testing.T) {
 		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 4, bulkRequest.NumberOfActions())
 	}
 
-	expected := `{"index":{"_index":"` + testIndexName + `","_id":"1"}}
+	expected := `{"index":{"_index":"` + testIndexName + `","_id":"1","_type":"doc"}}
 {"user":"olivere","message":"Welcome to Golang and Elasticsearch.","retweets":0,"created":"0001-01-01T00:00:00Z"}
-{"create":{"_index":"` + testIndexName + `","_id":"2"}}
+{"create":{"_index":"` + testIndexName + `","_id":"2","_type":"doc"}}
 {"user":"sandrae","message":"Dancing all night long. Yeah.","retweets":0,"created":"0001-01-01T00:00:00Z"}
-{"delete":{"_index":"` + testIndexName + `","_id":"1"}}
-{"update":{"_index":"` + testIndexName + `","_id":"2"}}
+{"delete":{"_index":"` + testIndexName + `","_type":"doc","_id":"1"}}
+{"update":{"_index":"` + testIndexName + `","_type":"doc","_id":"2"}}
 {"doc":{"retweets":42},"_source":true}
 `
 	got, err := bulkRequest.bodyAsString()
@@ -345,7 +345,7 @@ func TestBulkIndexDeleteUpdate(t *testing.T) {
 		t.Fatalf("expected updated[0].GetResult.Found to be != %v; got %v", want, have)
 	}
 	var doc tweet
-	if err := json.Unmarshal(updated[0].GetResult.Source, &doc); err != nil {
+	if err := json.Unmarshal(*updated[0].GetResult.Source, &doc); err != nil {
 		t.Fatalf("expected to unmarshal updated[0].GetResult.Source; got %v", err)
 	}
 	if want, have := 42, doc.Retweets; want != have {
@@ -396,7 +396,7 @@ func TestFailedBulkRequests(t *testing.T) {
   "items" : [ {
     "index" : {
       "_index" : "elastic-test",
-      "_type" : "_doc",
+      "_type" : "doc",
       "_id" : "1",
       "_version" : 1,
       "status" : 201
@@ -404,7 +404,7 @@ func TestFailedBulkRequests(t *testing.T) {
   }, {
     "create" : {
       "_index" : "elastic-test",
-      "_type" : "_doc",
+      "_type" : "doc",
       "_id" : "2",
       "_version" : 1,
       "status" : 423,
@@ -416,7 +416,7 @@ func TestFailedBulkRequests(t *testing.T) {
   }, {
     "delete" : {
       "_index" : "elastic-test",
-      "_type" : "_doc",
+      "_type" : "doc",
       "_id" : "1",
       "_version" : 2,
       "status" : 404,
@@ -425,7 +425,7 @@ func TestFailedBulkRequests(t *testing.T) {
   }, {
     "update" : {
       "_index" : "elastic-test",
-      "_type" : "_doc",
+      "_type" : "doc",
       "_id" : "2",
       "_version" : 2,
       "status" : 200
@@ -450,10 +450,10 @@ func TestBulkEstimatedSizeInBytes(t *testing.T) {
 	tweet1 := tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."}
 	tweet2 := tweet{User: "sandrae", Message: "Dancing all night long. Yeah."}
 
-	index1Req := NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(tweet1)
-	index2Req := NewBulkIndexRequest().OpType("create").Index(testIndexName).Id("2").Doc(tweet2)
-	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Id("1")
-	update2Req := NewBulkUpdateRequest().Index(testIndexName).Id("2").
+	index1Req := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").Doc(tweet1)
+	index2Req := NewBulkIndexRequest().OpType("create").Index(testIndexName).Type("doc").Id("2").Doc(tweet2)
+	delete1Req := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
+	update2Req := NewBulkUpdateRequest().Index(testIndexName).Type("doc").Id("2").
 		Doc(struct {
 			Retweets int `json:"retweets"`
 		}{
@@ -493,7 +493,7 @@ func TestBulkEstimatedSizeInBytes(t *testing.T) {
 func TestBulkEstimateSizeInBytesLength(t *testing.T) {
 	client := setupTestClientAndCreateIndex(t)
 	s := client.Bulk()
-	r := NewBulkDeleteRequest().Index(testIndexName).Id("1")
+	r := NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1")
 	s = s.Add(r)
 	if got, want := s.estimateSizeInBytes(r), int64(1+len(r.String())); got != want {
 		t.Fatalf("expected %d; got: %d", want, got)
@@ -512,7 +512,7 @@ func TestBulkContentType(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	indexReq := NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."})
+	indexReq := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").Doc(tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."})
 	if _, err := client.Bulk().Add(indexReq).Do(context.Background()); err != nil {
 		t.Fatal(err)
 	}
@@ -533,9 +533,9 @@ func BenchmarkBulkEstimatedSizeInBytesWith1Request(b *testing.B) {
 	s := client.Bulk()
 	var result int64
 	for n := 0; n < b.N; n++ {
-		s = s.Add(NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(struct{ A string }{"1"}))
-		s = s.Add(NewBulkUpdateRequest().Index(testIndexName).Id("1").Doc(struct{ A string }{"2"}))
-		s = s.Add(NewBulkDeleteRequest().Index(testIndexName).Id("1"))
+		s = s.Add(NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").Doc(struct{ A string }{"1"}))
+		s = s.Add(NewBulkUpdateRequest().Index(testIndexName).Type("doc").Id("1").Doc(struct{ A string }{"2"}))
+		s = s.Add(NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1"))
 		result = s.EstimatedSizeInBytes()
 		s.Reset()
 	}
@@ -549,9 +549,9 @@ func BenchmarkBulkEstimatedSizeInBytesWith100Requests(b *testing.B) {
 	var result int64
 	for n := 0; n < b.N; n++ {
 		for i := 0; i < 100; i++ {
-			s = s.Add(NewBulkIndexRequest().Index(testIndexName).Id("1").Doc(struct{ A string }{"1"}))
-			s = s.Add(NewBulkUpdateRequest().Index(testIndexName).Id("1").Doc(struct{ A string }{"2"}))
-			s = s.Add(NewBulkDeleteRequest().Index(testIndexName).Id("1"))
+			s = s.Add(NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").Doc(struct{ A string }{"1"}))
+			s = s.Add(NewBulkUpdateRequest().Index(testIndexName).Type("doc").Id("1").Doc(struct{ A string }{"2"}))
+			s = s.Add(NewBulkDeleteRequest().Index(testIndexName).Type("doc").Id("1"))
 		}
 		result = s.EstimatedSizeInBytes()
 		s.Reset()
@@ -584,7 +584,7 @@ func benchmarkBulkAllocs(b *testing.B, size, num int) {
 	n := 0
 	for {
 		n++
-		s = s.Add(NewBulkIndexRequest().Index("test").Id("1").Doc(struct {
+		s = s.Add(NewBulkIndexRequest().Index("test").Type("doc").Id("1").Doc(struct {
 			S string `json:"s"`
 		}{
 			S: string(buf),

@@ -1,3 +1,4 @@
 blackhole
 *.log
 .DS_Store
+*.json

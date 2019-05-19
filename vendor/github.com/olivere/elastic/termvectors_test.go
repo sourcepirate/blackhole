@@ -21,27 +21,15 @@ func TestTermVectorsBuildURL(t *testing.T) {
 	}{
 		{
 			"twitter",
-			"_doc",
+			"doc",
 			"",
-			"/twitter/_doc/_termvectors",
+			"/twitter/doc/_termvectors",
 		},
 		{
 			"twitter",
-			"",
-			"",
-			"/twitter/_termvectors",
-		},
-		{
-			"twitter",
-			"_doc",
+			"doc",
 			"1",
-			"/twitter/_doc/1/_termvectors",
-		},
-		{
-			"twitter",
-			"",
-			"1",
-			"/twitter/_termvectors/1",
+			"/twitter/doc/1/_termvectors",
 		},
 	}
 
@@ -68,6 +56,7 @@ func TestTermVectorsWithId(t *testing.T) {
 	// Add a document
 	indexResult, err := client.Index().
 		Index(testIndexName).
+		Type("doc").
 		Id("1").
 		BodyJson(&tweet1).
 		Refresh("true").
@@ -81,7 +70,7 @@ func TestTermVectorsWithId(t *testing.T) {
 
 	// TermVectors by specifying ID
 	field := "Message"
-	result, err := client.TermVectors(testIndexName, "_doc").
+	result, err := client.TermVectors(testIndexName, "doc").
 		Id("1").
 		Fields(field).
 		FieldStatistics(true).
@@ -115,7 +104,7 @@ func TestTermVectorsWithDoc(t *testing.T) {
 		"fullname": "keyword",
 	}
 
-	result, err := client.TermVectors(testIndexName, "_doc").
+	result, err := client.TermVectors(testIndexName, "doc").
 		Doc(doc).
 		PerFieldAnalyzer(perFieldAnalyzer).
 		FieldStatistics(true).
@@ -149,7 +138,7 @@ func TestTermVectorsWithFilter(t *testing.T) {
 		"fullname": "keyword",
 	}
 
-	result, err := client.TermVectors(testIndexName, "_doc").
+	result, err := client.TermVectors(testIndexName, "doc").
 		Doc(doc).
 		PerFieldAnalyzer(perFieldAnalyzer).
 		FieldStatistics(true).

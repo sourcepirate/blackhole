@@ -11,7 +11,7 @@
 // The number of documents after which a commit happens can be specified
 // via the "bulk-size" flag.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docs-bulk.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/docs-bulk.html
 // for details on the Bulk API in Elasticsearch.
 //
 // Example
@@ -36,7 +36,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/olivere/elastic/v7"
+	"github.com/olivere/elastic"
 )
 
 func main() {

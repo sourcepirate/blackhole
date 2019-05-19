@@ -25,8 +25,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/olivere/elastic/v7"
-	"github.com/olivere/elastic/v7/config"
+	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/config"
 )
 
 func main() {
@@ -113,6 +113,7 @@ func main() {
 			}
 			r := elastic.NewBulkIndexRequest().
 				Index(cfg.Index).
+				Type("doc").
 				Id(uuid.New().String()).
 				Doc(Doc{Timestamp: time.Now()})
 			p.Add(r)

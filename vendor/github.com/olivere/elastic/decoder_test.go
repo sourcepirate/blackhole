@@ -34,6 +34,7 @@ func TestDecoder(t *testing.T) {
 	// Add a document
 	indexResult, err := client.Index().
 		Index(testIndexName).
+		Type("doc").
 		Id("1").
 		BodyJson(&tweet).
 		Do(context.TODO())

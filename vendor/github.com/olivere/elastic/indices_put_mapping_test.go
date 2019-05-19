@@ -14,20 +14,28 @@ func TestPutMappingURL(t *testing.T) {
 
 	tests := []struct {
 		Indices  []string
+		Type     string
 		Expected string
 	}{
 		{
+			[]string{},
+			"doc",
+			"/_mapping/doc",
+		},
+		{
 			[]string{"*"},
-			"/%2A/_mapping",
+			"doc",
+			"/%2A/_mapping/doc",
 		},
 		{
 			[]string{"store-1", "store-2"},
-			"/store-1%2Cstore-2/_mapping",
+			"doc",
+			"/store-1%2Cstore-2/_mapping/doc",
 		},
 	}
 
 	for _, test := range tests {
-		path, _, err := client.PutMapping().Index(test.Indices...).buildURL()
+		path, _, err := client.PutMapping().Index(test.Indices...).Type(test.Type).buildURL()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -51,14 +59,16 @@ func TestMappingLifecycle(t *testing.T) {
 	}
 
 	mapping := `{
-		"properties":{
-			"field":{
-				"type":"keyword"
+		"doc":{
+			"properties":{
+				"field":{
+					"type":"keyword"
+				}
 			}
 		}
 	}`
 
-	putresp, err := client.PutMapping().Index(testIndexName3).BodyString(mapping).Do(context.TODO())
+	putresp, err := client.PutMapping().Index(testIndexName3).Type("doc").BodyString(mapping).Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected put mapping to succeed; got: %v", err)
 	}
@@ -69,7 +79,7 @@ func TestMappingLifecycle(t *testing.T) {
 		t.Fatalf("expected put mapping ack; got: %v", putresp.Acknowledged)
 	}
 
-	getresp, err := client.GetMapping().Index(testIndexName3).Do(context.TODO())
+	getresp, err := client.GetMapping().Index(testIndexName3).Type("doc").Do(context.TODO())
 	if err != nil {
 		t.Fatalf("expected get mapping to succeed; got: %v", err)
 	}

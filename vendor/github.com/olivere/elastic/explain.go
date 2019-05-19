@@ -10,12 +10,12 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/v7/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // ExplainService computes a score explanation for a query and
 // a specific document.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-explain.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-explain.html.
 type ExplainService struct {
 	client                 *Client
 	pretty                 bool
@@ -45,7 +45,6 @@ type ExplainService struct {
 func NewExplainService(client *Client) *ExplainService {
 	return &ExplainService{
 		client:         client,
-		typ:            "_doc",
 		xSource:        make([]string, 0),
 		xSourceExclude: make([]string, 0),
 		fields:         make([]string, 0),
@@ -66,8 +65,6 @@ func (s *ExplainService) Index(index string) *ExplainService {
 }
 
 // Type is the type of the document.
-//
-// Deprecated: Types are in the process of being removed.
 func (s *ExplainService) Type(typ string) *ExplainService {
 	s.typ = typ
 	return s
@@ -199,21 +196,11 @@ func (s *ExplainService) BodyString(body string) *ExplainService {
 // buildURL builds the URL for the operation.
 func (s *ExplainService) buildURL() (string, url.Values, error) {
 	// Build URL
-	var path string
-	var err error
-
-	if s.typ == "_doc" {
-		path, err = uritemplates.Expand("/{index}/_explain/{id}", map[string]string{
-			"id":    s.id,
-			"index": s.index,
-		})
-	} else {
-		path, err = uritemplates.Expand("/{index}/{type}/{id}/_explain", map[string]string{
-			"id":    s.id,
-			"index": s.index,
-			"type":  s.typ,
-		})
-	}
+	path, err := uritemplates.Expand("/{index}/{type}/{id}/_explain", map[string]string{
+		"id":    s.id,
+		"index": s.index,
+		"type":  s.typ,
+	})
 	if err != nil {
 		return "", url.Values{}, err
 	}
@@ -239,7 +226,7 @@ func (s *ExplainService) buildURL() (string, url.Values, error) {
 		params.Set("source", s.source)
 	}
 	if len(s.xSourceExclude) > 0 {
-		params.Set("_source_excludes", strings.Join(s.xSourceExclude, ","))
+		params.Set("_source_exclude", strings.Join(s.xSourceExclude, ","))
 	}
 	if s.lenient != nil {
 		params.Set("lenient", fmt.Sprintf("%v", *s.lenient))
@@ -257,7 +244,7 @@ func (s *ExplainService) buildURL() (string, url.Values, error) {
 		params.Set("lowercase_expanded_terms", fmt.Sprintf("%v", *s.lowercaseExpandedTerms))
 	}
 	if len(s.xSourceInclude) > 0 {
-		params.Set("_source_includes", strings.Join(s.xSourceInclude, ","))
+		params.Set("_source_include", strings.Join(s.xSourceInclude, ","))
 	}
 	if s.analyzeWildcard != nil {
 		params.Set("analyze_wildcard", fmt.Sprintf("%v", *s.analyzeWildcard))

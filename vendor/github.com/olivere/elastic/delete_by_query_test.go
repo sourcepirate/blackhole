@@ -87,22 +87,22 @@ func TestDeleteByQuery(t *testing.T) {
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,6 +120,7 @@ func TestDeleteByQuery(t *testing.T) {
 	q := NewTermQuery("user", "sandrae")
 	res, err := client.DeleteByQuery().
 		Index(testIndexName).
+		Type("doc").
 		Query(q).
 		Pretty(true).
 		Do(context.TODO())
@@ -130,8 +131,8 @@ func TestDeleteByQuery(t *testing.T) {
 		t.Fatalf("expected response != nil; got: %v", res)
 	}
 
-	// Refresh and check count
-	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
+	// Flush and check count
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -153,22 +154,22 @@ func TestDeleteByQueryAsync(t *testing.T) {
 	tweet3 := tweet{User: "sandrae", Message: "Cycling is fun."}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -186,6 +187,7 @@ func TestDeleteByQueryAsync(t *testing.T) {
 	q := NewTermQuery("user", "sandrae")
 	res, err := client.DeleteByQuery().
 		Index(testIndexName).
+		Type("doc").
 		Query(q).
 		Slices("auto").
 		Pretty(true).

@@ -9,6 +9,8 @@ import (
 
 var version = "0.1.0"
 
+var batchsize = 20
+
 var rootCmd = &cobra.Command{
 	Use:   "blackhole",
 	Short: "Tool of choice for elasticsearch dump",
@@ -22,6 +24,8 @@ func Initialize() {
 	rootCmd.AddCommand(versionCmd())
 	rootCmd.AddCommand(dumpCommand())
 	rootCmd.AddCommand(exportCommand())
+
+	rootCmd.PersistentFlags().IntVar(&batchsize, "batchsize", 20, "Size for each batch")
 	err := rootCmd.Execute()
 	if err != nil {
 		fmt.Println(err)

@@ -44,27 +44,27 @@ func TestAggs(t *testing.T) {
 	}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	count, err := client.Count(testIndexName).Do(context.Background())
+	count, err := client.Count(testIndexName).Type("doc").Do(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -193,8 +193,8 @@ func TestAggs(t *testing.T) {
 	if searchResult.Hits == nil {
 		t.Errorf("expected Hits != nil; got: nil")
 	}
-	if searchResult.TotalHits() != 3 {
-		t.Errorf("expected TotalHits() = %d; got: %d", 3, searchResult.TotalHits())
+	if searchResult.Hits.TotalHits != 3 {
+		t.Errorf("expected Hits.TotalHits = %d; got: %d", 3, searchResult.Hits.TotalHits)
 	}
 	if len(searchResult.Hits.Hits) != 3 {
 		t.Errorf("expected len(Hits.Hits) = %d; got: %d", 3, len(searchResult.Hits.Hits))
@@ -948,11 +948,8 @@ func TestAggs(t *testing.T) {
 	if topHits.Hits == nil {
 		t.Fatalf("expected != nil; got: nil")
 	}
-	if topHits.Hits.TotalHits == nil {
-		t.Fatalf("expected != nil; got: nil")
-	}
-	if topHits.Hits.TotalHits.Value != 2 {
-		t.Errorf("expected %d; got: %d", 2, topHits.Hits.TotalHits.Value)
+	if topHits.Hits.TotalHits != 2 {
+		t.Errorf("expected %d; got: %d", 2, topHits.Hits.TotalHits)
 	}
 	if topHits.Hits.Hits == nil {
 		t.Fatalf("expected != nil; got: nil")
@@ -968,7 +965,7 @@ func TestAggs(t *testing.T) {
 		t.Fatal("expected != nil; got: nil")
 	}
 	var tw tweet
-	if err := json.Unmarshal(hit.Source, &tw); err != nil {
+	if err := json.Unmarshal(*hit.Source, &tw); err != nil {
 		t.Fatalf("expected no error; got: %v", err)
 	}
 	if tw.Message != "Welcome to Golang and Elasticsearch." {
@@ -990,11 +987,8 @@ func TestAggs(t *testing.T) {
 	if topHits.Hits == nil {
 		t.Fatal("expected != nil; got nil")
 	}
-	if topHits.Hits.TotalHits == nil {
-		t.Fatal("expected != nil; got nil")
-	}
-	if topHits.Hits.TotalHits.Value != 1 {
-		t.Errorf("expected %d; got: %d", 1, topHits.Hits.TotalHits.Value)
+	if topHits.Hits.TotalHits != 1 {
+		t.Errorf("expected %d; got: %d", 1, topHits.Hits.TotalHits)
 	}
 	if topTags.Buckets[2].DocCount != 1 {
 		t.Errorf("expected %d; got: %d", 1, topTags.Buckets[2].DocCount)
@@ -1012,11 +1006,8 @@ func TestAggs(t *testing.T) {
 	if topHits.Hits == nil {
 		t.Fatal("expected != nil; got: nil")
 	}
-	if topHits.Hits.TotalHits == nil {
-		t.Fatal("expected != nil; got: nil")
-	}
-	if topHits.Hits.TotalHits.Value != 1 {
-		t.Errorf("expected %d; got: %d", 1, topHits.Hits.TotalHits.Value)
+	if topHits.Hits.TotalHits != 1 {
+		t.Errorf("expected %d; got: %d", 1, topHits.Hits.TotalHits)
 	}
 
 	// viewport via geo_bounds (1.3.0 has an error in that it doesn't output the aggregation name)
@@ -1250,27 +1241,27 @@ func TestAggsCompositeIntegration(t *testing.T) {
 	}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Id("2").BodyJson(&tweet2).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("2").BodyJson(&tweet2).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Index().Index(testIndexName).Id("3").BodyJson(&tweet3).Do(context.TODO())
+	_, err = client.Index().Index(testIndexName).Type("doc").Id("3").BodyJson(&tweet3).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	count, err := client.Count(testIndexName).Do(context.Background())
+	count, err := client.Count(testIndexName).Type("doc").Do(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1298,11 +1289,8 @@ func TestAggsCompositeIntegration(t *testing.T) {
 	if searchResult.Hits == nil {
 		t.Errorf("expected Hits != nil; got: nil")
 	}
-	if searchResult.Hits.TotalHits == nil {
-		t.Errorf("expected Hits.TotalHits != nil; got: nil")
-	}
-	if searchResult.Hits.TotalHits.Value != 3 {
-		t.Errorf("expected Hits.TotalHits.Value = %d; got: %d", 3, searchResult.Hits.TotalHits.Value)
+	if searchResult.Hits.TotalHits != 3 {
+		t.Errorf("expected Hits.TotalHits = %d; got: %d", 3, searchResult.Hits.TotalHits)
 	}
 	if len(searchResult.Hits.Hits) != 3 {
 		t.Errorf("expected len(Hits.Hits) = %d; got: %d", 3, len(searchResult.Hits.Hits))
@@ -1455,11 +1443,11 @@ func TestAggsMarshal(t *testing.T) {
 	}
 
 	// Add all documents
-	_, err := client.Index().Index(testIndexName).Id("1").BodyJson(&tweet1).Do(context.TODO())
+	_, err := client.Index().Index(testIndexName).Type("doc").Id("1").BodyJson(&tweet1).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = client.Refresh().Index(testIndexName).Do(context.TODO())
+	_, err = client.Flush().Index(testIndexName).Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1988,10 +1976,7 @@ func TestAggsMetricsTopHits(t *testing.T) {
            "doc_count": 25365,
            "top_tags_hits": {
               "hits": {
-                 "total": {
-                   "value": 25365,
-                   "relation": "eq"
-                 },
+                 "total": 25365,
                  "max_score": 1,
                  "hits": [
                     {
@@ -2015,10 +2000,7 @@ func TestAggsMetricsTopHits(t *testing.T) {
            "doc_count": 18342,
            "top_tags_hits": {
               "hits": {
-                 "total": {
-                   "value": 18342,
-                   "relation": "eq"
-                 },
+                 "total": 18342,
                  "max_score": 1,
                  "hits": [
                     {
@@ -2042,10 +2024,7 @@ func TestAggsMetricsTopHits(t *testing.T) {
            "doc_count": 18119,
            "top_tags_hits": {
               "hits": {
-                 "total": {
-                   "value": 18119,
-                   "relation": "eq"
-                 },
+                 "total": 18119,
                  "max_score": 1,
                  "hits": [
                     {
@@ -2108,14 +2087,8 @@ func TestAggsMetricsTopHits(t *testing.T) {
 	if subAgg.Hits == nil {
 		t.Fatalf("expected sub aggregation Hits != nil; got: %v", subAgg.Hits)
 	}
-	if subAgg.Hits.TotalHits == nil {
-		t.Fatalf("expected sub aggregation Hits.TotalHits != nil; got: %v", subAgg.Hits.TotalHits)
-	}
-	if subAgg.Hits.TotalHits.Value != 25365 {
-		t.Fatalf("expected sub aggregation Hits.TotalHits.Value = %d; got: %d", 25365, subAgg.Hits.TotalHits.Value)
-	}
-	if subAgg.Hits.TotalHits.Relation != "eq" {
-		t.Fatalf("expected sub aggregation Hits.TotalHits.Relation = %v; got: %v", "eq", subAgg.Hits.TotalHits.Relation)
+	if subAgg.Hits.TotalHits != 25365 {
+		t.Fatalf("expected sub aggregation Hits.TotalHits = %d; got: %d", 25365, subAgg.Hits.TotalHits)
 	}
 	if subAgg.Hits.MaxScore == nil {
 		t.Fatalf("expected sub aggregation Hits.MaxScore != %v; got: %v", nil, *subAgg.Hits.MaxScore)
@@ -2134,14 +2107,8 @@ func TestAggsMetricsTopHits(t *testing.T) {
 	if subAgg.Hits == nil {
 		t.Fatalf("expected sub aggregation Hits != nil; got: %v", subAgg.Hits)
 	}
-	if subAgg.Hits.TotalHits == nil {
-		t.Fatalf("expected sub aggregation Hits.TotalHits != nil; got: %v", subAgg.Hits.TotalHits)
-	}
-	if subAgg.Hits.TotalHits.Value != 18342 {
-		t.Fatalf("expected sub aggregation Hits.TotalHits.Value = %d; got: %d", 18342, subAgg.Hits.TotalHits.Value)
-	}
-	if subAgg.Hits.TotalHits.Relation != "eq" {
-		t.Fatalf("expected sub aggregation Hits.TotalHits.Relation = %v; got: %v", "eq", subAgg.Hits.TotalHits.Relation)
+	if subAgg.Hits.TotalHits != 18342 {
+		t.Fatalf("expected sub aggregation Hits.TotalHits = %d; got: %d", 18342, subAgg.Hits.TotalHits)
 	}
 	if subAgg.Hits.MaxScore == nil {
 		t.Fatalf("expected sub aggregation Hits.MaxScore != %v; got: %v", nil, *subAgg.Hits.MaxScore)
@@ -2160,14 +2127,8 @@ func TestAggsMetricsTopHits(t *testing.T) {
 	if subAgg.Hits == nil {
 		t.Fatalf("expected sub aggregation Hits != nil; got: %v", subAgg.Hits)
 	}
-	if subAgg.Hits.TotalHits == nil {
-		t.Fatalf("expected sub aggregation Hits.TotalHits != nil; got: %v", subAgg.Hits.TotalHits)
-	}
-	if subAgg.Hits.TotalHits.Value != 18119 {
-		t.Fatalf("expected sub aggregation Hits.TotalHits.Value = %d; got: %d", 18119, subAgg.Hits.TotalHits.Value)
-	}
-	if subAgg.Hits.TotalHits.Relation != "eq" {
-		t.Fatalf("expected sub aggregation Hits.TotalHits.Relation = %v; got: %v", "eq", subAgg.Hits.TotalHits.Relation)
+	if subAgg.Hits.TotalHits != 18119 {
+		t.Fatalf("expected sub aggregation Hits.TotalHits = %d; got: %d", 18119, subAgg.Hits.TotalHits)
 	}
 	if subAgg.Hits.MaxScore == nil {
 		t.Fatalf("expected sub aggregation Hits.MaxScore != %v; got: %v", nil, *subAgg.Hits.MaxScore)

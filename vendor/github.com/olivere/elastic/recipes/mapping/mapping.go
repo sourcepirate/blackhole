@@ -19,7 +19,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/olivere/elastic/v7"
+	"github.com/olivere/elastic"
 )
 
 const (
@@ -30,21 +30,23 @@ const (
 			"number_of_replicas":0
 		},
 		"mappings":{
-			"properties":{
-				"user":{
-					"type":"keyword"
-				},
-				"message":{
-					"type":"text"
-				},
-				"retweets":{
-					"type":"integer"
-				},
-				"created":{
-					"type":"date"
-				},
-				"attributes":{
-					"type":"object"
+			"_doc":{
+				"properties":{
+					"user":{
+						"type":"keyword"
+					},
+					"message":{
+						"type":"text"
+					},
+					"retweets":{
+						"type":"integer"
+					},
+					"created":{
+						"type":"date"
+					},
+					"attributes":{
+						"type":"object"
+					}
 				}
 			}
 		}
@@ -116,6 +118,7 @@ func main() {
 		}
 		_, err := client.Index().
 			Index(*index).
+			Type("_doc").
 			Id("1").
 			BodyJson(&tweet).
 			Refresh("true").
@@ -129,13 +132,14 @@ func main() {
 	{
 		doc, err := client.Get().
 			Index(*index).
+			Type("_doc").
 			Id("1").
 			Do(context.TODO())
 		if err != nil {
 			log.Fatal(err)
 		}
 		var tweet Tweet
-		if err = json.Unmarshal(doc.Source, &tweet); err != nil {
+		if err = json.Unmarshal(*doc.Source, &tweet); err != nil {
 			log.Fatal(err)
 		}
 		fmt.Printf("%s at %s: %s (%d retweets)\n",

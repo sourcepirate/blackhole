@@ -16,6 +16,7 @@ func TestAggsIntegrationAvgBucket(t *testing.T) {
 	// Match all should return all documents
 	builder := client.Search().
 		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -58,6 +59,7 @@ func TestAggsIntegrationDerivative(t *testing.T) {
 	// Match all should return all documents
 	builder := client.Search().
 		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -188,6 +190,7 @@ func TestAggsIntegrationMaxBucket(t *testing.T) {
 	// Match all should return all documents
 	builder := client.Search().
 		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -236,6 +239,7 @@ func TestAggsIntegrationMinBucket(t *testing.T) {
 	// Match all should return all documents
 	builder := client.Search().
 		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -284,6 +288,7 @@ func TestAggsIntegrationSumBucket(t *testing.T) {
 	// Match all should return all documents
 	builder := client.Search().
 		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -326,6 +331,7 @@ func TestAggsIntegrationMovAvg(t *testing.T) {
 	// Match all should return all documents
 	builder := client.Search().
 		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -437,6 +443,7 @@ func TestAggsIntegrationCumulativeSum(t *testing.T) {
 	// Match all should return all documents
 	builder := client.Search().
 		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -579,6 +586,7 @@ func TestAggsIntegrationBucketScript(t *testing.T) {
 	// Match all should return all documents
 	builder := client.Search().
 		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -726,6 +734,7 @@ func TestAggsIntegrationBucketSelector(t *testing.T) {
 	// Match all should return all documents
 	builder := client.Search().
 		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")
@@ -775,6 +784,7 @@ func TestAggsIntegrationSerialDiff(t *testing.T) {
 	// Match all should return all documents
 	builder := client.Search().
 		Index(testOrderIndex).
+		Type("doc").
 		Query(NewMatchAllQuery()).
 		Pretty(true)
 	h := NewDateHistogramAggregation().Field("time").Interval("month")

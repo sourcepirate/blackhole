@@ -18,12 +18,12 @@ func TestXPackWatcherExecuteWatchBuildURL(t *testing.T) {
 	}{
 		{
 			"",
-			"/_watcher/watch/_execute",
+			"/_xpack/watcher/watch/_execute",
 			false,
 		},
 		{
 			"my-watch",
-			"/_watcher/watch/my-watch/_execute",
+			"/_xpack/watcher/watch/my-watch/_execute",
 			false,
 		},
 	}

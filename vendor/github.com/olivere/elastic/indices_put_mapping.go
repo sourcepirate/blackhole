@@ -10,17 +10,18 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/olivere/elastic/v7/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // IndicesPutMappingService allows to register specific mapping definition
 // for a specific type.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/7.0/indices-put-mapping.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.7/indices-put-mapping.html
 // for details.
 type IndicesPutMappingService struct {
 	client            *Client
 	pretty            bool
+	typ               string
 	index             []string
 	masterTimeout     string
 	ignoreUnavailable *bool
@@ -50,6 +51,12 @@ func NewIndicesPutMappingService(client *Client) *IndicesPutMappingService {
 // (supports wildcards); use `_all` or omit to add the mapping on all indices.
 func (s *IndicesPutMappingService) Index(indices ...string) *IndicesPutMappingService {
 	s.index = append(s.index, indices...)
+	return s
+}
+
+// Type is the name of the document type.
+func (s *IndicesPutMappingService) Type(typ string) *IndicesPutMappingService {
+	s.typ = typ
 	return s
 }
 
@@ -114,9 +121,20 @@ func (s *IndicesPutMappingService) BodyString(mapping string) *IndicesPutMapping
 
 // buildURL builds the URL for the operation.
 func (s *IndicesPutMappingService) buildURL() (string, url.Values, error) {
-	path, err := uritemplates.Expand("/{index}/_mapping", map[string]string{
-		"index": strings.Join(s.index, ","),
-	})
+	var err error
+	var path string
+
+	// Build URL: Typ MUST be specified and is verified in Validate.
+	if len(s.index) > 0 {
+		path, err = uritemplates.Expand("/{index}/_mapping/{type}", map[string]string{
+			"index": strings.Join(s.index, ","),
+			"type":  s.typ,
+		})
+	} else {
+		path, err = uritemplates.Expand("/_mapping/{type}", map[string]string{
+			"type": s.typ,
+		})
+	}
 	if err != nil {
 		return "", url.Values{}, err
 	}
@@ -150,8 +168,8 @@ func (s *IndicesPutMappingService) buildURL() (string, url.Values, error) {
 // Validate checks if the operation is valid.
 func (s *IndicesPutMappingService) Validate() error {
 	var invalid []string
-	if len(s.index) == 0 {
-		invalid = append(invalid, "Index")
+	if s.typ == "" {
+		invalid = append(invalid, "Type")
 	}
 	if s.bodyString == "" && s.bodyJson == nil {
 		invalid = append(invalid, "BodyJson")

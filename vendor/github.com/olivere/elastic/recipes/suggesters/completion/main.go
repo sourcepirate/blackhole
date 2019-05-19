@@ -10,7 +10,7 @@
 //     ./completion -url=http://127.0.0.1:9200 -index=cities
 //
 // For more details and experimentation, take a look at the official
-// documentation at https://www.elastic.co/guide/en/elasticsearch/reference/7.0/search-suggesters-completion.html.
+// documentation at https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-suggesters-completion.html.
 package main
 
 import (
@@ -23,7 +23,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/olivere/elastic/v7"
+	"github.com/olivere/elastic"
 )
 
 const (
@@ -34,12 +34,14 @@ const (
 			"number_of_replicas":0
 		},
 		"mappings":{
-			"properties":{
-				"name":{
-					"type":"keyword"
-				},
-				"name_suggest":{
-					"type":"completion"
+			"_doc":{
+				"properties":{
+					"name":{
+						"type":"keyword"
+					},
+					"name_suggest":{
+						"type":"completion"
+					}
 				}
 			}
 		}
@@ -124,6 +126,7 @@ func main() {
 		fmt.Printf("Add %s...\n", name)
 		_, err := client.Index().
 			Index(*index).
+			Type("_doc").
 			BodyJson(&City{
 				Name:        name,
 				NameSuggest: elastic.NewSuggestField(name),
@@ -147,6 +150,7 @@ func main() {
 
 		res, err := client.Search().
 			Index(*index).
+			Type("_doc").
 			Suggester(
 				elastic.NewCompletionSuggester("name_suggestion").
 					Field("name_suggest").
@@ -170,7 +174,7 @@ func main() {
 
 				// The document's source is in opt.Source
 				var city City
-				if err = json.Unmarshal(opt.Source, &city); err != nil {
+				if err = json.Unmarshal(*opt.Source, &city); err != nil {
 					log.Fatal(err)
 				}
 				_ = city

@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/olivere/elastic/v7"
+	"github.com/olivere/elastic" // <- should end with /v6, but missing due to compatibility reasons
 )
 
 func main() {
