@@ -16,7 +16,7 @@ var rootCmd = &cobra.Command{
 	Short: "Tool of choice for elasticsearch dump",
 	Long:  "Tool of choice for elasticsearch dump",
 	Run: func(cmd *cobra.Command, args []string) {
-		// to do here
+		cmd.Usage()
 	},
 }
 
