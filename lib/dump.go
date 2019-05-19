@@ -41,7 +41,7 @@ func (d *Dumper) Dump(index string, encoder *json.Encoder) (bool, error) {
 		log.Printf("Fetched record %d - %d", len(result.Hits.Hits), start)
 
 		for _, it := range result.Hits.Hits {
-			errored = encoder.Encode(it)
+			errored = encoder.Encode(it.Source)
 			if errored != nil {
 				return false, errors.New("File Writter error")
 			}
