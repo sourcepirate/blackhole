@@ -13,7 +13,7 @@ import (
 
 func dumpCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:   "dump",
+		Use:   "dump [dumpfile] [url] [indexname]",
 		Short: "Dump elasticsearch index to json",
 		Long:  "Dump elasticsearch index to json",
 		Args:  cobra.MinimumNArgs(3),
