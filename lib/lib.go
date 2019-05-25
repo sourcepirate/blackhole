@@ -123,17 +123,19 @@ func (d *Exporter) Export(index string, decoder *json.Decoder) {
 	_, creation_error := index_service.Do(context.Background())
 	// Error created.
 	if creation_error != nil {
-		log.Println(creation_error)
 		log.Fatalf("Failed creating index %s", index)
 	}
 
 	for decoder.More() {
 
 		if err != nil {
-			log.Println(err)
-
-			log.Fatal("Unable to decode data")
+			if err.Error() == "unexpected EOF" {
+				return
+			} else {
+				log.Fatal("Unable to decode data")
+			}
 		}
+
 		request := elastic.NewBulkIndexRequest()
 		request.Index(index)
 		request.Doc(data.Source)
@@ -142,12 +144,10 @@ func (d *Exporter) Export(index string, decoder *json.Decoder) {
 		mapper := elastic.NewBulkService(d.client)
 		mapper.Index(index).Type(data.Doc).Add(request)
 
-		response, errored := mapper.Do(context.Background())
+		_, errored := mapper.Do(context.Background())
 		if errored != nil {
 			log.Panic(errored)
-			log.Fatal(response)
 		}
-		log.Println(response)
 		err = decoder.Decode(&data)
 	}
 }
