@@ -100,6 +100,7 @@ func (d *Exporter) Export(index string, decoder *json.Decoder) {
 
 	var data Data
 
+	start := 0
 	map_data := make(map[string]interface{})
 	mapping_err := decoder.Decode(&map_data)
 
@@ -128,27 +129,30 @@ func (d *Exporter) Export(index string, decoder *json.Decoder) {
 
 	for decoder.More() {
 
-		if err != nil {
-			if err.Error() == "unexpected EOF" {
-				return
-			} else {
-				log.Fatal("Unable to decode data")
+		mapper := elastic.NewBulkService(d.client)
+
+		for i := 0; i < d.patchsize; i++ {
+			if err != nil {
+				if err.Error() == "unexpected EOF" {
+					return
+				} else {
+					log.Fatal("Unable to decode data")
+				}
 			}
+			request := elastic.NewBulkIndexRequest()
+			request.Index(index)
+			request.Doc(data.Source)
+			request.Id(data.ID)
+			mapper.Index(index).Type(data.Doc).Add(request)
+			err = decoder.Decode(&data)
+			start += 1
 		}
 
-		request := elastic.NewBulkIndexRequest()
-		request.Index(index)
-		request.Doc(data.Source)
-		request.Id(data.ID)
-
-		mapper := elastic.NewBulkService(d.client)
-		mapper.Index(index).Type(data.Doc).Add(request)
-
+		log.Printf("Updated %d documents", start)
 		_, errored := mapper.Do(context.Background())
 		if errored != nil {
 			log.Panic(errored)
 		}
-		err = decoder.Decode(&data)
 	}
 }
 
