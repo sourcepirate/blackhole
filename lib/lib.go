@@ -32,6 +32,7 @@ func (d *Dumper) Dump(index string, encoder *json.Encoder) (bool, error) {
 	mapping_service := elastic.NewGetMappingService(d.client)
 	mapping_service.Index(index)
 	meta_maps, map_err := mapping_service.Do(context.Background())
+	log.Println(meta_maps)
 
 	if map_err != nil {
 		// mapping error
@@ -109,7 +110,7 @@ func (d *Exporter) Export(index string, decoder *json.Decoder) {
 	}
 
 	index_service := elastic.NewIndexService(d.client)
-	index_service.BodyJson(map_data)
+
 	index_service.Index(index)
 
 	err := decoder.Decode(&data)
@@ -118,13 +119,15 @@ func (d *Exporter) Export(index string, decoder *json.Decoder) {
 		log.Println("Errored")
 		log.Fatal(err)
 	}
-
+	json_data := map_data[index].(map[string]interface{})["mappings"]
+	json_data = json_data.(map[string]interface{})[data.Doc]
+	index_service.BodyJson(json_data)
 	index_service.Type(data.Doc)
 
 	_, creation_error := index_service.Do(context.Background())
 	// Error created.
 	if creation_error != nil {
-		log.Fatalf("Failed creating index %s", index)
+		log.Fatalf("Failed creating index %s", creation_error)
 	}
 
 	for decoder.More() {
